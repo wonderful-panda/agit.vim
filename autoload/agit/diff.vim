@@ -13,7 +13,14 @@ function! s:fill_buffer(git, relpath, hash) abort
     edit! `='fugitive://' . a:git.git_dir . '//0/' . a:relpath`
   else
     let content = a:git.catfile(a:hash, a:relpath)
-    silent! file `=a:relpath . '(' . a:hash . ')'`
+    let bufnamebase = a:relpath . '(' . a:hash . ')'
+    let bufname = bufnamebase
+    let i = 0
+    while bufloaded(bufname)
+      let i += 1
+      let bufname = bufnamebase . '~' . string(i)
+    endwhile
+    silent! file `=bufname`
     doautocmd BufNewFile `=a:relpath`
     setlocal noswapfile buftype=nofile bufhidden=delete
     setlocal modifiable
